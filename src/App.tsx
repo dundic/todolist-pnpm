@@ -1,45 +1,37 @@
-import './App.css'
+  import './App.css'
 import {TaskType, Todolist} from './Todolist.tsx'
 import {useState} from 'react';
-
-
+import {v1} from 'uuid';
 // Create
 // Read(view mode, sort, filter, search)
-// Update
 // Delete
-
+// Update
 export type FilterValueType = 'all' | 'active' | 'completed'
 
 function App() {
 // Data/state => state managers => useState function
-    const todolistTitle: string = 'What to learn'
 
-    // const todolistTasks: Array<TaskType> = [
-    //     {id: 1, title: 'HTML&CSS', isDone: true},
-    //     {id: 2, title: 'JS/TS', isDone: false},
-    //     {id: 3, title: 'REACT', isDone: false},
-    //     {id: 4, title: 'REDUX', isDone: false},
-    //     {id: 5, title: 'REST API', isDone: false}
-    // ]
-
-   const [todolistTasks, setTodolistTasks] = useState<Array<TaskType>>([
-        {id: 1, title: 'HTML&CSS', isDone: true},
-        {id: 2, title: 'JS/TS', isDone: false},
-        {id: 3, title: 'REACT', isDone: false},
-        {id: 4, title: 'REDUX', isDone: false},
-        {id: 5, title: 'REST API', isDone: false}
+    const [tasks, setTasks] = useState<TaskType[]>([
+        {id: v1(), title: 'HTML&CSS', isDone: true},
+        {id: v1(), title: 'JS/TS', isDone: false},
+        {id: v1(), title: 'REACT', isDone: false},
+        {id: v1(), title: 'REDUX', isDone: false},
+        {id: v1(), title: 'REST API', isDone: false}
     ])
 
-   const [filter, setFilter] = useState<FilterValueType>('all')
+    function deleteTask(taskId: string) {
+        const nextRender = tasks.filter((t => t.id !== taskId))
+        setTasks(nextRender)
+        // setTasks(todolistTasks.filter(t => t.id !== taskId))лаконичность кода убрать переменную nextState еще вариант setTasks(prev => prev.filter(t=>t.id !== taskId))
+    }
 
-    // const result = useState<TaskType[]>(initialTasks)//функция возвращает массив из двух эл.(массив, функция)
-    // const todolistTasks = result[0] так изначально выглядит результат вызова функции useState
-    // const settodolistTasks = result[1]
+    function createTask(title: string) {
+        setTasks([...tasks, {id: v1(), title, isDone: false}])
+    }
 
-    function deleteTask(taskId: number) {
-        const nextRender = todolistTasks.filter((t => t.id !== taskId))
-        setTodolistTasks(nextRender)
-         // setTodolistTasks(todolistTasks.filter(t => t.id !== taskId))лаконичность кода убрать переменную nextState еще вариант setTodolistTasks(prev => prev.filter(t=>t.id !== taskId))
+    function changeTaskStatus(taskId: string, newStatus: boolean) {
+        const nextState: TaskType[] = tasks.map(t => t.id === taskId ? {...t, isDone: newStatus} : t)
+        setTasks(nextState)
     }
 
     function getFilteredTasks(tasks: TaskType[], filterValue: FilterValueType): Array<TaskType> {
@@ -53,21 +45,24 @@ function App() {
         }
     }
 
+    const [filter, setFilter] = useState<FilterValueType>('all')
+
     function changeFilter(filter: FilterValueType) {
         setFilter(filter)
     }
 
-    const filteredTasks: Array<TaskType> = getFilteredTasks(todolistTasks, filter)
-
+    const filteredTasks: TaskType[] = getFilteredTasks(tasks, filter)
 
 // UI
     return (
             <div className={'app'}>
                 <Todolist
-                        title={todolistTitle}
-                        // tasks={getFilteredTasks(todolistTasks, filter)}
+                        title="What to learn"
                         tasks={filteredTasks}
+                        filter={filter}
                         deleteTask={deleteTask}
+                        createTask={createTask}
+                        changeTaskStatus={changeTaskStatus}
                         changeFilter={changeFilter}
                 />
             </div>
